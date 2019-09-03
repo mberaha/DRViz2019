@@ -1,0 +1,235 @@
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css"/>
+  <!--        <link rel="stylesheet" type="text/css" href="assets/styles/main.css" />-->
+  <link rel="stylesheet" type="text/css" href="static/main.css">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script type="text/javascript">
+  var wordsAndScores = {% raw wordsAndScores %};
+  var locations = {% raw  locations %};
+  var times = {% raw times %};
+  var lats = [];
+  var longs = [];
+  var counts = {% raw counts %};
+  var topicNum = {% raw topic %}
+  var maxCount = {% raw maxCount %}
+  for (var k in locations) {
+    lats.push(locations[k][0]);
+    longs.push(locations[k][1]);
+ }
+ var colors = [
+    '#1f77b4',  // muted blue
+    '#ff7f0e',  // safety orange
+    '#2ca02c',  // cooked asparagus green
+    '#d62728',  // brick red
+    '#9467bd',  // muted purple
+    '#8c564b',  // chestnut brown
+    '#e377c2',  // raspberry yogurt pink
+    '#7f7f7f',  // middle gray
+    '#bcbd22',  // curry yellow-green
+    '#17becf' ]
+  </script>
+</head>
+<body>
+<!-- Plotly chart will be drawn inside this DIV -->
+
+<h1>Lda Visualization Server</h1>
+<form class="text-input-box" method="get">
+<!-- Topic
+<div class="query">
+  <input type="text" name="topic" placeholder="Text to explain", value="{{topic}}">
+  <button class="round-button" type="submit"></button>
+</div>
+</form> -->
+
+<div class='section' style="width:1000px; margin:0 auto;">
+  <table border="0">
+    <tr>
+      <td>
+        Topic
+        <div class="query" style="width:200px; display: table-cell; vertical-align: middle;">
+          <input type="text" name="topic" placeholder="Topic to visualize", value="{{topic}}">
+        </div>
+      </td>
+      <td><div id="hist_div" style="width:700px; height: 300px;"></div></td>
+    </tr>
+  </table>
+</div>
+
+
+<div class='section' style="width:1000px; margin:0 auto;">
+  <table border="0">
+    <tr>
+      <td><div id="map" style="width: 600px; height: 400px;"></div></td>
+      <td><div id="chart_div" style="width: 400px; height: 400px;"></div></td>
+    </tr>
+  </table>
+</div>
+
+<script type="text/javascript">
+
+var percentColors = [
+    { pct: 0.0, color: { r: 0xff, g: 0x00, b: 0 } },
+    { pct: 0.5, color: { r: 0xff, g: 0xff, b: 0 } },
+    { pct: 1.0, color: { r: 0x00, g: 0xff, b: 0 } } ];
+
+var getColorForPercentage = function(pct) {
+    for (var i = 1; i < percentColors.length - 1; i++) {
+        if (pct < percentColors[i].pct) {
+            break;
+        }
+    }
+    var lower = percentColors[i - 1];
+    var upper = percentColors[i];
+    var range = upper.pct - lower.pct;
+    var rangePct = (pct - lower.pct) / range;
+    var pctLower = 1 - rangePct;
+    var pctUpper = rangePct;
+    var color = {
+        r: Math.floor(lower.color.r * pctLower + upper.color.r * pctUpper),
+        g: Math.floor(lower.color.g * pctLower + upper.color.g * pctUpper),
+        b: Math.floor(lower.color.b * pctLower + upper.color.b * pctUpper)
+    };
+    return 'rgb(' + [color.r, color.g, color.b].join(',') + ')';
+}
+Plotly.d3.json(
+  'https://raw.githubusercontent.com/abahgat/opendata-milano/master/geojson/quartieri.geojson',
+  function(redjson) {
+
+  scl = [];
+  cols = [];
+  for (i=0; i < 11; i++) {
+    scl.push([0.1 * i, getColorForPercentage(0.1 * i)]);
+    cols.push(0.1 * i);
+  }
+
+
+  console.log(scl);
+
+  sources=[];
+  for (i=0; i < redjson['features'].length; i++) {
+      sources.push({"type": "FeatureCollection", 'features': [redjson['features'][i]]});
+  };
+
+  lays=[];
+  for (i=0; i < sources.length; i++) {
+    lays.push({
+      sourcetype: 'geojson',
+      source: sources[i],
+      below: "water",
+      type: 'fill',
+      color: getColorForPercentage(
+        counts[sources[i]['features'][0]["properties"]['ID_NIL']]),
+      opacity: 0.8,
+    });
+  }
+  var data = [{
+    type: 'scattermapbox',
+    lat: [45],
+    lon: [9],
+    colorscale: scl,
+    mode: 'markers',
+    marker: {
+      color: cols,
+      size: 0,
+      colorscale: scl,
+      colorbar:{
+          thickness: 10,
+          ticktext: [
+            (0).toString(), (maxCount/3).toFixed(2),
+            (maxCount * 2 / 3).toFixed(2), maxCount.toString()],
+          ticks: 'outside',
+          ticklen: 3,
+          tickvals: [0, 0.33, 0.66, 1.0]
+        }
+    }
+  }]
+
+  var layout = {
+    height: 400,
+    width: 500,
+    mapbox: {
+      center: {
+        lat: 45.47043,
+        lon: 9.179307
+      },
+      style: 'light',
+      zoom: 10.0,
+      layers: lays
+    },
+    margin: {
+      r: 0,
+      t: 0,
+      b: 0,
+      l: 0,
+      pad: 0
+    },
+  }
+
+  Plotly.setPlotConfig({
+    mapboxAccessToken: 'pk.eyJ1IjoibWJlcmFoYSIsImEiOiJjanZtM29mcTgxOHRsNDNvanlud3ZrNGd3In0.P9CBhyuMVsAmJ7AUl8fMNg'
+  });
+
+  Plotly.plot(document.getElementById('map'), data, layout);
+});
+
+  // Plotly.plot(document.getElementById('map'), data, layout);
+</script>
+
+<script type="text/javascript">
+google.charts.load('current', {packages: ['corechart', 'bar']});
+google.charts.setOnLoadCallback(drawWordChart);
+
+function drawWordChart() {
+  data = [["Word", "Weight"]]
+  Array.prototype.push.apply(data, wordsAndScores);
+  var data = google.visualization.arrayToDataTable(data);
+  var options = {
+    title: 'Most Influential Words',
+    chartArea: {height: '90%', width: '50%'},
+    hAxis: {
+      title: 'Weight',
+      minValue: 0
+    },
+    vAxis: {
+      title: ''
+    },
+    colors: [colors[topicNum % 10]],
+    opacity: [0.7]
+  };
+
+  var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+
+  chart.draw(data, options);
+}
+</script>
+
+<script type="text/javascript">
+var trace = {
+    x: times,
+    type: 'histogram',
+    nbisnx: 60,
+    histnorm: 'probability',
+    marker: {color: colors[topicNum % 10]}
+  };
+
+  var layout = {
+     title: 'Tweets in Milan',
+     font: {
+         color: 'Black'
+     }
+   }
+var data = [trace];
+Plotly.newPlot(document.getElementById('hist_div'), data);
+
+</script>
+
+</body>
+</html>

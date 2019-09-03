@@ -1,0 +1,281 @@
+/* FONTS */
+@font-face {
+	font-family: 'Akkurat';
+	src: url('fonts/akkurat/regular.otf');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Akkurat';
+	src: url('fonts/akkurat/regular_italic.otf');
+	font-weight: normal;
+	font-style: italic;
+}
+
+@font-face {
+	font-family: 'Akkurat';
+	src: url('fonts/akkurat/light.otf');
+	font-weight: lighter;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Akkurat';
+	src: url('fonts/akkurat/light_italic.otf');
+	font-weight: lighter;
+	font-style: italic;
+}
+
+@font-face {
+	font-family: 'Akkurat';
+	src: url('fonts/akkurat/bold.otf');
+	font-weight: bold;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Akkurat';
+	src: url('fonts/akkurat/bold_italic.otf');
+	font-weight: bold;
+	font-style: italic;
+}
+
+
+html {
+    font-size: 8px;
+    /***************** WHY? ******************
+     * Cause 16px ( the base font-size )     *
+     * multiplied by .625 is equal to 10.    *
+     * So 1rem now is 10px and I can work    *
+     * in base 10 ( 1.1 = 11px, 2.4 = 24px ) *
+     ****************************************/
+    font-family: Akkurat, Helvetica, sans-serif;
+    color: #494949;
+}
+
+body {
+    background-color: #f7f7f7;
+}
+
+main > section.placeholder {
+    width: 0;
+}
+
+main > section.results {
+    width: 100%;
+    flex: 1 1 auto;
+}
+
+h1 {
+    font-size: 3.2rem;
+		text-align: center;
+}
+
+article {
+    margin-top: 2rem;
+    padding: 0;
+    border: 1px solid #E0E0E0;
+    border-radius: .5rem;
+    background-color: #fff;
+}
+
+header {
+    background-color: #fff;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+header .card, main {
+    display: flex;
+    flex-flow: wrap;
+    flex-direction: row;
+}
+
+header .card form {
+    width: 100%;
+    flex: 1 1 auto;
+}
+
+header img.logo {
+    max-height: 4rem;
+}
+
+.container {
+    padding: 1rem;
+}
+
+.round-button {
+    width: 4.2rem;
+    height: 4.2rem;
+    border-radius: 50%;
+}
+
+.query {
+    border-bottom: 1px solid #e1e1e1;
+    padding: 5px;
+    display: flex;
+/*    flex-flow: wrap;*/
+    flex-direction: row;
+    align-content: space-around;
+    justify-content: space-around;
+}
+
+.query input[type='text'] {
+    border: none;
+    flex: 1 1 auto;
+    order: 1;
+    font-size: 3rem;
+    outline: none;
+    font-family: Akkurat, Helvetica, sans-serif;
+    color: #484848;
+}
+
+.query input[type='text']::placeholder {
+    font-family: Akkurat, Helvetica, sans-serif;
+    color: #e1e1e1;
+}
+
+.query button {
+    border: none;
+    background-color: #FF2118;
+    background-image: url('../imgs/send_icon.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    order: 2;
+}
+
+header .options {
+    margin-top: 2rem;
+    display: flex;
+}
+
+header .options .metrics {
+    font-size: 1.6rem;
+    font-weight: bold;
+}
+
+header .options .metrics p {
+    margin: 0;
+}
+
+header .options .language {
+    flex: 1 1 auto;
+    text-align: right;
+    align-self: flex-end;
+}
+
+header .options .language input {
+    display: none;
+}
+
+.entities ul {
+    list-style: none;
+/*    width: 100%;*/
+    padding : 0;
+    margin: 0;
+}
+
+.not-found {
+    text-align: center;
+}
+
+.not-found img {
+    max-width: 300px;
+}
+
+.not-found h2 {
+    font-size: 2.4rem;
+}
+
+small {
+    font-weight: normal;
+}
+
+.section-title {
+    margin: 1.3rem;
+    margin-bottom: 0;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #FF2118;
+}
+
+.radio {
+    display: inline-block;
+    position: relative;
+}
+
+.radio > label {
+    font-size: 1.6rem;
+    padding-left: 2.2rem;
+    margin-right: 2rem;
+    cursor: pointer;
+}
+
+.radio > label::before {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    border: 2px solid #E0E0E0;
+    box-sizing: border-box;
+}
+
+.radio > input:checked + label {
+    color: #FF2118;
+}
+
+.radio > input:checked + label::before {
+    border: .5rem solid #FF2118;
+    background-color: #fff;
+}
+
+.card {
+    box-sizing: border-box;
+    border-bottom: 1px solid #e1e1e1;
+    width: 100%;
+    margin: 0;
+    padding: 1rem 1.5rem;
+}
+
+.card > h3 {
+    font-size: 2.4rem;
+    word-break: break-all;
+}
+
+* > .card:last-child {
+    border-bottom: none;
+}
+
+@media screen and ( min-width: 720px ) {
+    html {
+        font-size: 62.5%;
+    }
+    header.container {
+        padding-top: 8rem;
+    }
+
+    header .card form, main > section.results {
+        width: auto;
+        max-width: 700px;
+    }
+
+    header img.logo, main > section.placeholder {
+        width: 150px;
+        margin-left: 3rem;
+        margin-right: 5.5rem;
+    }
+
+    header img.logo {
+        margin-top: .8rem;
+    }
+
+    main > section.placeholder {
+        margin-left: 4.5rem;
+    }
+}
