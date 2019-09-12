@@ -24,7 +24,6 @@
     lats.push(locations[k][0]);
     longs.push(locations[k][1]);
  }
- console.log(counts);
  var colors = [
     '#1f77b4',  // muted blue
     '#ff7f0e',  // safety orange
@@ -151,7 +150,6 @@ Plotly.d3.json(
       opacity: 0.8,
     });
   }
-  console.log(lays);
   var data = [{
     type: 'scattermapbox',
     lat: [45],
