@@ -20,7 +20,6 @@ class OnlineLDA(object):
 
         topicsPerDoc = self.lda.fit_transform(X)
         self.topicsPerDoc = np.argmax(topicsPerDoc, axis=1)
-        self.lda.components_ / self.lda.components_.sum(axis=1)[:, np.newaxis]
         self.maxCountByNil = 0.0
         for topic in range(self.n_topics):
             cnt = max(self.getCountByNil(topic))
@@ -36,11 +35,12 @@ class OnlineLDA(object):
         times = self.times[docIdx]
         counts = self.getCountByNil(topicNum)
         normCounts = [
-            np.log(1 + x) / self.maxLogCountByNil for x in counts]
-        return wordsAndScores, locations, normCounts, max(counts), times
+            np.log(2 + x) / self.maxLogCountByNil for x in counts]
+        return wordsAndScores, locations, normCounts, self.maxCountByNil, times
 
     def getWordsAndScores(self, topicNum, topk=20):
         topic = self.lda.components_[topicNum, :]
+        topic /= np.sum(topic)
         out = [
             [self.idx2word[i], topic[i]]
             for i in topic.argsort()[:-topk - 1:-1]]
@@ -55,7 +55,7 @@ class OnlineLDA(object):
         counts = Counter(self.nils[idx])
         out = []
         for n in range(88):
-            out.append(counts.get(n, 0))
+            out.append(counts.get(n + 1, 0))
         return out
 
     def getTimes(self, topicNum):

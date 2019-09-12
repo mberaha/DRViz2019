@@ -24,6 +24,7 @@
     lats.push(locations[k][0]);
     longs.push(locations[k][1]);
  }
+ console.log(counts);
  var colors = [
     '#1f77b4',  // muted blue
     '#ff7f0e',  // safety orange
@@ -42,18 +43,12 @@
 
 <h1>Lda Visualization Server</h1>
 <form class="text-input-box" method="get">
-<!-- Topic
-<div class="query">
-  <input type="text" name="topic" placeholder="Text to explain", value="{{topic}}">
-  <button class="round-button" type="submit"></button>
-</div>
-</form> -->
 
 <div class='section' style="width:1000px; margin:0 auto;">
   <table border="0">
     <tr>
       <td>
-        Topic
+        Topic (1 - {{ntopics}})
         <div class="query" style="width:200px; display: table-cell; vertical-align: middle;">
           <input type="text" name="topic" placeholder="Topic to visualize", value="{{topic}}">
         </div>
@@ -99,6 +94,34 @@ var getColorForPercentage = function(pct) {
     };
     return 'rgb(' + [color.r, color.g, color.b].join(',') + ')';
 }
+
+var getColor = function(x) {
+  for (var i = 1; i < viridis50.length - 1; i++) {
+      if (x < i / viridis50.length ) {
+          break;
+      }
+  }
+  return viridis50[i];
+}
+
+var viridis50 = [
+  "#440154", "#46085C", "#471064", "#48176A", "#481F70", "#482576",
+  "#472C7A", "#46337E", "#443983", "#423F85", "#404588", "#3E4A89",
+  "#3C508B", "#39568C", "#365C8D", "#34618D", "#31668E", "#2F6B8E",
+  "#2D718E", "#2B758E", "#297A8E", "#277F8E", "#25848E", "#23898E",
+  "#218E8D", "#20928C", "#1F978B", "#1E9D89", "#1FA187", "#21A685",
+  "#25AB82", "#29AF7F", "#30B57C", "#38B977", "#40BD72", "#4AC16D",
+  "#55C568", "#5FCA61", "#6BCD5A", "#77D153", "#84D44B", "#91D742",
+  "#9FDA3A", "#ACDC30", "#BADE28", "#C8E020", "#D6E21A", "#E4E419",
+  "#F1E51D", "#FDE725"
+]
+
+function hexToRgb(hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  var out = 'rgb(' +  [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)].join(',') + ')';
+  return out;
+}
+
 Plotly.d3.json(
   'https://raw.githubusercontent.com/abahgat/opendata-milano/master/geojson/quartieri.geojson',
   function(redjson) {
@@ -106,12 +129,10 @@ Plotly.d3.json(
   scl = [];
   cols = [];
   for (i=0; i < 11; i++) {
-    scl.push([0.1 * i, getColorForPercentage(0.1 * i)]);
+    scl.push([0.1 * i, getColor(0.1 * i)]);
     cols.push(0.1 * i);
   }
 
-
-  console.log(scl);
 
   sources=[];
   for (i=0; i < redjson['features'].length; i++) {
@@ -125,11 +146,12 @@ Plotly.d3.json(
       source: sources[i],
       below: "water",
       type: 'fill',
-      color: getColorForPercentage(
-        counts[sources[i]['features'][0]["properties"]['ID_NIL']]),
+      color: getColor(
+        counts[sources[i]['features'][0]["properties"]['ID_NIL'] - 1]),
       opacity: 0.8,
     });
   }
+  console.log(lays);
   var data = [{
     type: 'scattermapbox',
     lat: [45],
@@ -166,11 +188,12 @@ Plotly.d3.json(
     },
     margin: {
       r: 0,
-      t: 0,
+      t: 35,
       b: 0,
       l: 0,
       pad: 0
     },
+    title: "Spatial distribution of the tweets"
   }
 
   Plotly.setPlotConfig({
@@ -193,10 +216,13 @@ function drawWordChart() {
   var data = google.visualization.arrayToDataTable(data);
   var options = {
     title: 'Most Influential Words',
-    chartArea: {height: '90%', width: '50%'},
+    chartArea: {height: '80%', width: '50%'},
     hAxis: {
       title: 'Weight',
-      minValue: 0
+      minValue: 0,
+      maxValue: 1.25 * data.getColumnRange(1).max,
+      format: 'short',
+      gridlines: { count: 4 }
     },
     vAxis: {
       title: ''
@@ -221,13 +247,16 @@ var trace = {
   };
 
   var layout = {
-     title: 'Tweets in Milan',
-     font: {
-         color: 'Black'
-     }
+     yaxis: {
+      title: '# Tweets (normalized)',
+    },
+    xaxis: {
+     title: 'Date',
+   },
+   title: "Temporal distribution of the tweets"
    }
 var data = [trace];
-Plotly.newPlot(document.getElementById('hist_div'), data);
+Plotly.newPlot(document.getElementById('hist_div'), data, layout);
 
 </script>
 
